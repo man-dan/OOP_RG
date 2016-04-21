@@ -1,0 +1,5 @@
+require './library.rb'
+
+lib = Library.new
+lib.load_authors
+lib.save_lib

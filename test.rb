@@ -1,11 +1,9 @@
 require './library.rb'
 
 lib = Library.new
-lib.load_authors
-lib.load_books
-lib.load_readers
-lib.load_orders
-puts lib.authors.inspect+"\n\n"
-puts lib.books.inspect+"\n\n"
-puts lib.readers.inspect+"\n\n"
-puts lib.orders.inspect+"\n\n"
+lib.add_book(Book.new("Potter","Rowling"))
+lib.add_order(Order.new("Potter","Den","21.04.16"))
+lib.add_reader(Reader.new("Petya","pet123@gmail.com","Dnepropetrovsk","Moljera","10"))
+lib.add_author(Author.new("Rowling","writer"))
+
+lib.save_lib
