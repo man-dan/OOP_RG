@@ -9,6 +9,20 @@ class Library
 	def initialize
 		@books, @orders, @readers, @authors = [], [], [], []
 	end
+	def most_popular_book
+		books=[]
+		@orders.each {|b| books<<b.book}
+		books.each_with_object(b=Hash.new(0)){|book| b[book]+=1}
+		b.sort {|a,b| b[1]<=>a[1]}.first[0]
+	end
+	def stat_reader(book)
+		readers_stat = Hash.new(0)
+		@orders.each do |r| 
+			readers_stat[r.reader] +=1 if r.book==book
+		end
+		reader_v = readers_stat.values.max
+		readers_stat.each {|k,v| puts k if v==reader_v}		
+	end
 	def add_book(book_obj)
 		@books<<book_obj
 	end
