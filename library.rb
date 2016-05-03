@@ -32,7 +32,7 @@ class Library
   def stat_reader(book)#Who often takes the book
     ordereds = @orders.select {|order| order if order.book==book}
     orders = ordereds.group_by {|ord| ord.reader}
-    puts orders.max_by {|k,v| v.count}.first
+    orders.max_by {|k,v| v.count}.first
   end
 
   def add_obj(obj)

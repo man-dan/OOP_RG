@@ -14,6 +14,8 @@ lib.add_order(Order.new("Lord of The Rings","Ivanov Ivan","23.04.16"))
 lib.save_lib
 =end
 lib.load_orders
-lib.stat_reader("Kobzar")
+puts "#{lib.stat_reader("Kobzar")}-who often takes the book"
+print "Most popular book-"
 lib.most_popular_book
+puts "People wich takes one of the three popular books:"
 lib.who_takes_popular_books
