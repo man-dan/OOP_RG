@@ -12,11 +12,8 @@ class Library
 
   def who_takes_popular_books
     three_books = three_most_popular_books
-    readers = []
-    @orders.map do |r|
-        three_books.map {|v| readers << r.reader if v==r.book } 
-    end
-    puts readers.uniq!
+    who_ord = @orders.map { |ord| ord.reader if three_books[0..2].include?(ord.book)}
+    puts who_ord.compact.uniq
   end
 
   def most_popular_book
