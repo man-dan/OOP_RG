@@ -4,101 +4,69 @@ require './reader.rb'
 require './author.rb'
 
 class Library
-	attr_accessor :books, :orders, :readers, :authors
+  attr_accessor :books, :orders, :readers, :authors
 
-	def initialize
-		@books, @orders, @readers, @authors = [], [], [], []
-	end
-	def who_takes_popular_books
-		three_books=three_most_popular_books
-		who=[]
-		@orders.each do |r| 
-			three_books.each {|k,v| who<<r.reader if k==r.book}
-		end
-		puts who.uniq!
-	end
-	def most_popular_book
-		arr=three_most_popular_books.max_by{|k,v| v}
-		puts arr
-	end
-	def three_most_popular_books
-		books=[]
-		@orders.each {|b| books<<b.book}
-		books.each_with_object(b=Hash.new(0)){|book| b[book]+=1}
-		c=Hash.new
-		b.sort {|a,b| b[1]<=>a[1]}.each_with_index{|(k,v),i| c[k]=v if i<3}
-		c
-	end
-	def stat_reader(book)#Who often takes the book
-		readers_stat = Hash.new(0)
-		@orders.each do |r| 
-			readers_stat[r.reader] +=1 if r.book==book
-		end
-		reader_v = readers_stat.values.max
-		readers_stat.each {|k,v| puts k if v==reader_v}		
-	end
-	def add_book(book_obj)
-		@books<<book_obj
-	end
-	def add_reader(reader_obj)
-		@readers<<reader_obj
-	end
-	def add_order(order_obj)
-		@orders<<order_obj
-	end
-	def add_author(author_obj)
-		@authors<<author_obj
-	end
+  def initialize
+    @books, @orders, @readers, @authors = [], [], [], []
+  end
 
-	def load_books
-		File.open('./db/books.txt','r').each  do |b|
-			book = b.split('-')
-			@books<<Book.new(book[0],book[1])
-		end
-	end
-	def load_orders
-		File.open('./db/orders.txt','r').each  do |o|
-			order = o.split('-')
-			@orders<<Order.new(order[0],order[1],order[2])
-		end
-	end
-	def load_readers
-		File.open('./db/readers.txt','r').each  do |r|
-			reader = r.split('-')
-			@readers<<Reader.new(reader[0],reader[1],reader[2],reader[3],reader[4])
-		end
-	end
-	def load_authors
-		File.open('./db/authors.txt','r').each  do |a|
-			author = a.split('-')
-			@authors<<Author.new(author[0],author[1])
-		end
-	end
-	def save_lib
-		save_books(books)
-		save_orders(orders)
-		save_readers(readers)
-		save_authors(authors)
-	end
+  def who_takes_popular_books
+    three_books = three_most_popular_books
+    readers = []
+    @orders.map do |r|
+        three_books.map {|v| readers << r.reader if v==r.book } 
+    end
+    puts readers.uniq!
+  end
 
-	def save_books(books)
-    	File.open("./db/books.txt", "a+") do |f|
-      		books.each {|b| f<<[b.title,b.author].join('-')}
-    	end
-	end
-    def save_orders(orders)
-    	File.open("./db/orders.txt", "a+") do |f|
-      		orders.each {|o| f<<[o.book,o.reader,o.date].join('-')}
-    	end
-  	end
-  	def save_readers(readers)
-    	File.open("./db/readers.txt", "a+") do |f|
-      		readers.each {|r| f<<[r.name,r.email,r.city,r.street,r.house].join('-')}
-    	end
-  	end
-  	def save_authors(authors)
-    	File.open("./db/authors.txt", "a+") do |f|
-      		authors.each {|a| f<<[a.name,a.biography].join('-')}
-    	end
-  	end
+  def most_popular_book
+    puts three_most_popular_books[0]
+  end
+
+  def three_most_popular_books
+    books_ordered = @orders.group_by {|ord_book| ord_book.book}
+    ordered = books_ordered.max_by(3) {|k,v| v.count}
+    three_books = ordered.map {|book| book[0]}
+  end
+
+  def stat_reader(book)#Who often takes the book
+    ordereds = @orders.select {|order| order if order.book==book}
+    orders = ordereds.group_by {|ord| ord.reader}
+    puts orders.max_by {|k,v| v.count}.first
+  end
+
+  def add_obj(obj)
+    instance_variable_get("@#{obj.class}s".downcase) << obj
+  end
+
+  def load_orders
+    File.open('./db/orders.txt','r').each  do |o|
+      order = o.split('-')
+      @orders<<Order.new(order[0],order[1],order[2])
+    end
+  end
+
+  def load_lib(class_name)
+    File.open("./db/#{class_name.downcase}s.txt", "r").each do |f|
+      row = f.split('-')
+      instance_variable_get("@#{class_name}s")<<eval(class_name.capitalize).new(*row)
+    end
+  end
+
+  def save_lib
+    save_part_lib("books")
+    save_part_lib("orders")
+    save_part_lib("readers")
+    save_part_lib("authors")
+  end
+
+  def save_part_lib(arr_name) 
+    File.open("./db/#{arr_name}.txt", "a+") do |f|
+      instance_variable_get("@#{arr_name}").map do |obj|
+        inst_v = [] 
+        obj.instance_variables.map {|inst| inst_v << obj.instance_variable_get(inst) }
+        f << inst_v.join('-');
+      end
+    end
+  end
 end
