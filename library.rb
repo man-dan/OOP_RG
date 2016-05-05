@@ -12,8 +12,8 @@ class Library
 
   def who_takes_popular_books
     three_books = three_most_popular_books
-    who_ord = @orders.map { |ord| ord.reader if three_books[0..2].include?(ord.book)}
-    puts who_ord.compact.uniq
+    who_ord = @orders.select {|ord| three_books[0..2].include?(ord.book)}.map(&:reader)
+    puts who_ord.uniq
   end
 
   def most_popular_book
@@ -27,7 +27,7 @@ class Library
   end
 
   def stat_reader(book)#Who often takes the book
-    ordereds = @orders.select {|order| order if order.book==book}
+    ordereds = @orders.select {|order| order.book==book}
     orders = ordereds.group_by {|ord| ord.reader}
     orders.max_by {|k,v| v.count}.first
   end
@@ -35,31 +35,21 @@ class Library
   def add_obj(obj)
     instance_variable_get("@#{obj.class}s".downcase) << obj
   end
-
-  def load_orders
-    File.open('./db/orders.txt','r').each  do |o|
-      order = o.split('-')
-      @orders<<Order.new(order[0],order[1],order[2])
-    end
-  end
-
+  
   def load_lib(class_name)
     File.open("./db/#{class_name.downcase}s.txt", "r").each do |f|
       row = f.split('-')
-      instance_variable_get("@#{class_name}s")<<eval(class_name.capitalize).new(*row)
+      instance_variable_get("@#{class_name.downcase}s") << eval(class_name.capitalize).new(*row)
     end
   end
 
   def save_lib
-    save_part_lib("books")
-    save_part_lib("orders")
-    save_part_lib("readers")
-    save_part_lib("authors")
+   self.instance_variables.each {|arr_name| save_part_lib(arr_name)}
   end
 
   def save_part_lib(arr_name) 
-    File.open("./db/#{arr_name}.txt", "a+") do |f|
-      instance_variable_get("@#{arr_name}").map do |obj|
+    File.open("./db/#{arr_name.to_s.delete('@')}.txt", "a+") do |f|
+      instance_variable_get(arr_name).map do |obj|
         inst_v = [] 
         obj.instance_variables.map {|inst| inst_v << obj.instance_variable_get(inst) }
         f << inst_v.join('-');

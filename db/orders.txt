@@ -7,4 +7,3 @@ RubyTutorial-Petya-22.04.16
 The Lost World-Vasya-23.04.16
 RubyTutorial-Vasya-23.04.16
 Lord of The Rings-Ivanov Ivan-23.04.16
-
