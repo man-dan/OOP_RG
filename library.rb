@@ -12,8 +12,7 @@ class Library
 
   def who_takes_popular_books
     three_books = three_most_popular_books
-    who_ord = @orders.select {|ord| three_books[0..2].include?(ord.book)}.map(&:reader)
-    puts who_ord.uniq
+    puts @orders.select {|ord| three_books[0..2].include?(ord.book)}.map(&:reader).uniq
   end
 
   def most_popular_book
@@ -28,8 +27,7 @@ class Library
 
   def stat_reader(book)#Who often takes the book
     ordereds = @orders.select {|order| order.book==book}
-    orders = ordereds.group_by {|ord| ord.reader}
-    orders.max_by {|k,v| v.count}.first
+    ordereds.group_by {|ord| ord.reader}.max_by {|k,v| v.count}.first
   end
 
   def add_obj(obj)
