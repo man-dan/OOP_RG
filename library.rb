@@ -20,9 +20,7 @@ class Library
   end
 
   def three_most_popular_books
-    books_ordered = @orders.group_by {|ord_book| ord_book.book}
-    ordered = books_ordered.max_by(3) {|k,v| v.count}
-    three_books = ordered.map {|book| book[0]}
+    @orders.group_by {|ord_book| ord_book.book}.max_by(3) {|k,v| v.count}.map {|book| book[0]}
   end
 
   def stat_reader(book)#Who often takes the book
@@ -47,10 +45,10 @@ class Library
 
   def save_part_lib(arr_name) 
     File.open("./db/#{arr_name.to_s.delete('@')}.txt", "a+") do |f|
-      instance_variable_get(arr_name).map do |obj|
-        inst_v = [] 
-        obj.instance_variables.map {|inst| inst_v << obj.instance_variable_get(inst) }
+      instance_variable_get(arr_name).map do |obj| 
+        inst_v = obj.instance_variables.map {|inst| obj.instance_variable_get(inst) }
         f << inst_v.join('-');
+        inst_v = []
       end
     end
   end
